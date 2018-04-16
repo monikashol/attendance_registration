@@ -5,17 +5,32 @@ import json
 
 
 class Computer:
-    
+
+   
     #This is where the children and their corresponding bluetooth addresses are stored
-    childAdress = {'address': 'child'}
+    childAdress = {'address1': 'childA', 'address2': 'childB', 'address3': 'childC'}
 
     #Here is the children and their status stored. This is what will be shown on the monitor. 
-    children = {'child': 'status'}
+    children = {'childA': 'status', 'childB': 'status', 'childC': 'status'}
 
 
     #PC listens for and handles MQTT messages
     def mqttlisten(self): 
+
+        def on_message(client, userdata, msg): 
+            message = json.loads(msg.payload.decode('utf-8'))
+            print("Topic: " + msg.topic)
+            print("Message: " + str(message))
+
         print("Listens...")
+        broker = 'test.mosquitto.org'
+        port = 1883
+        client = mqtt.Client()
+        client.on_message = on_message
+        client.connect("test.mosquitto.org", 1883, 60)
+        client.subscribe("mqtt_test/#")
+        client.loop_forever()
+
         self.start_timer()
 
 

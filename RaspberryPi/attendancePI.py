@@ -3,8 +3,13 @@ import paho.mqtt.client as mqtt
 from graphviz import Source
 import json
 
+
 class RasPi: 
 
+	def on_publish(client, userdata, result): 
+		print('Data published.')
+    
+	
 	#Here we save the beacon adresses (hard coded)
 	adresses = []
 
@@ -17,11 +22,25 @@ class RasPi:
 	def startTimer(self): 
 		#print("Timer started")
 		time = 1000*2
-		self.stm.start_timer('t', 1000)
+		self.stm.start_timer('t', 1000) 
 
 
 	def send(self): 
+
+		def on_publish():
+			self.stm.start_timer('t', 1)
+
 		print("Sending message...")
+		broker = 'test.mosquitto.org'
+		port = 1883		
+		client1= mqtt.Client("test1")
+		client1.connect(broker, port)
+		
+		msg = {'adress': 12345 }
+		payload = json.dumps(msg)
+
+		ret=client1.publish('mqtt_test', payload)	
+		print("Published!")	
 		self.startTimer()
 
 
