@@ -1,20 +1,16 @@
 from stmpy import Driver, Machine 
+from graphviz import Source
 import paho.mqtt.client as mqtt
 import json
 
+
 class Computer:
     
-    broker = 'test.mosquitto.org'
-    port = 1883
-
     #This is where the children and their corresponding bluetooth addresses are stored
     childAdress = {'address': 'child'}
 
-
-    def mqttsubscribe(self):
-        print("Trying to subscribe...")
-        self.start_timer()
-
+    #Here is the children and their status stored. This is what will be shown on the monitor. 
+    children = {'child': 'status'}
 
 
     #PC listens for and handles MQTT messages
@@ -29,7 +25,9 @@ class Computer:
 
     def start_timer(self):
         # start the timer
-        self.stm.start_timer('t', 1000*2)
+        time = 2*1000
+        self.stm.start_timer('t', time)
+
 
 
 #Make computer object: 
@@ -41,22 +39,16 @@ computer = Computer()
 #The initial transition
 t0 = {  
     'source': 'initial', 
-    'target': 'setup'
-    }
-
-t1 = {  
-    'trigger': 't',
-    'source': 'setup', 
     'target': 'listen'
     }
 
-t2 = {
+t1 = {
     'trigger': 't',
     'source': 'listen', 
     'target': 'handle'
 }
 
-t3 = {
+t2 = {
     'trigger': 't', 
     'source': 'handle', 
     'target': 'listen'
@@ -65,11 +57,6 @@ t3 = {
 
 
 #STATES
-
-setup = {
-    'name': 'setup',
-    'entry': 'mqttsubscribe'
-}
 
 listen = {
     'name': 'listen',
@@ -82,11 +69,14 @@ handle = {
 }
 
 
+
 #STATE MACHINE
-machine = Machine(name='computer', transitions=[t0, t1, t2, t3], obj=computer, states=[setup, listen, handle])
+machine = Machine(name='computer', transitions=[t0, t1, t2], obj=computer, states=[listen, handle])
 computer.stm = machine
 
 #Setting up and starting the driver
 driver = Driver()
 driver.add_machine(machine)
 driver.start()
+
+
